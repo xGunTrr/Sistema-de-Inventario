@@ -346,28 +346,7 @@ def dashboard_content() -> rx.Component:
                 ),
                 class_name="bg-white border border-gray-200 rounded-xl p-5",
             ),
-            rx.el.div(
-                rx.el.div(
-                    rx.el.div(
-                        rx.el.h3(
-                            "Actividad reciente",
-                            class_name="text-sm font-semibold text-gray-900",
-                        ),
-                        rx.el.p(
-                            "Últimos cambios en el sistema",
-                            class_name="text-xs text-gray-500 mt-0.5",
-                        ),
-                    ),
-                    rx.icon("activity", class_name="h-4 w-4 text-gray-400"),
-                    class_name="flex items-center justify-between mb-2",
-                ),
-                rx.el.div(
-                    rx.foreach(DataState.activities, activity_row),
-                    class_name="mt-2",
-                ),
-                class_name="bg-white border border-gray-200 rounded-xl p-5",
-            ),
-            class_name="grid grid-cols-1 lg:grid-cols-2 gap-4",
+            class_name="grid grid-cols-1 lg:grid-cols-1 gap-4",
         ),
     )
 
@@ -375,5 +354,5 @@ def dashboard_page(on_load=DataState.load_data) -> rx.Component:
     return authenticated_layout(
         dashboard_content(),
         title="Dashboard",
-        subtitle="Vista general de tu inventario y actividad reciente",
+        subtitle="Vista general de tu inventario",
     )

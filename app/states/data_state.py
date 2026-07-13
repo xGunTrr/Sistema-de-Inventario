@@ -26,14 +26,6 @@ class Supplier(TypedDict):
     phone: str
     product_count: int
 
-class Activity(TypedDict):
-    id: int
-    action: str
-    entity: str
-    user: str
-    time: str
-    icon: str
-
 EMPTY_PRODUCT: Product = {
     "id": 0,
     "name": "",
@@ -67,7 +59,6 @@ class DataState(rx.State):
     products = []
     product_types: list[ProductType] = []
     suppliers: list[Supplier] = []
-    activities: list[Activity] = []
 
     @rx.event
     async def load_products(self):

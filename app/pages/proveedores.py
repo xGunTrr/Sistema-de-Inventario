@@ -172,7 +172,7 @@ def supplier_form_dialog() -> rx.Component:
                                 ],
                                 key=DataState.editing_supplier["id"].to_string()
                                     + "_phone",
-                                placeholder="+34 600 000 000",
+                                placeholder="+51 999 999 999",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
                                 color="black",
                             ),
