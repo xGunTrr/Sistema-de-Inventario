@@ -2,14 +2,12 @@ import reflex as rx
 from app.components.layout import authenticated_layout
 from app.states.data_state import DataState, Product
 
-
 def stat_pill(label: str, value: rx.Var | str, color: str) -> rx.Component:
     return rx.el.div(
         rx.el.p(label, class_name="text-xs text-gray-500"),
         rx.el.p(value, class_name=f"text-lg font-semibold {color} mt-1"),
         class_name="bg-white border border-gray-200 rounded-xl px-4 py-3",
     )
-
 
 def toolbar() -> rx.Component:
     return rx.el.div(
@@ -24,6 +22,7 @@ def toolbar() -> rx.Component:
                     default_value=DataState.product_search,
                     on_change=DataState.set_product_search.debounce(300),
                     class_name="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm w-full md:w-72 focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                    color="black",
                 ),
                 class_name="relative",
             ),
@@ -36,6 +35,7 @@ def toolbar() -> rx.Component:
                     default_value=DataState.product_type_filter,
                     on_change=DataState.set_product_type_filter,
                     class_name="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                    color="black",
                 ),
                 rx.icon(
                     "chevron-down",
@@ -52,6 +52,7 @@ def toolbar() -> rx.Component:
                     default_value=DataState.product_supplier_filter,
                     on_change=DataState.set_product_supplier_filter,
                     class_name="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                    color="black",
                 ),
                 rx.icon(
                     "chevron-down",
@@ -67,6 +68,7 @@ def toolbar() -> rx.Component:
                     default_value=DataState.product_stock_filter,
                     on_change=DataState.set_product_stock_filter,
                     class_name="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                    color="black",
                 ),
                 rx.icon(
                     "chevron-down",
@@ -138,7 +140,7 @@ def product_row(p: Product) -> rx.Component:
         ),
         rx.el.td(
             rx.el.p(
-                "$" + p["price"].to_string(),
+                "S/." + p["price"].to_string(),
                 class_name="text-sm font-medium text-gray-900",
             ),
             class_name="px-4 py-3",
@@ -187,7 +189,6 @@ def empty_state() -> rx.Component:
         ),
         class_name="flex flex-col items-center justify-center py-16",
     )
-
 
 def products_table() -> rx.Component:
     return rx.el.div(
@@ -278,6 +279,7 @@ def product_form_dialog() -> rx.Component:
                                 + "_name",
                                 placeholder="Ej. Laptop Pro",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                                color="black",
                             ),
                         ),
                         form_field(
@@ -289,6 +291,7 @@ def product_form_dialog() -> rx.Component:
                                 + "_sku",
                                 placeholder="Ej. LP-001",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                                color="black",
                             ),
                         ),
                         class_name="grid grid-cols-2 gap-3 mb-3",
@@ -307,6 +310,7 @@ def product_form_dialog() -> rx.Component:
                                         "type"
                                     ],
                                     class_name="w-full pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                                    color="black",
                                 ),
                                 rx.icon(
                                     "chevron-down",
@@ -328,6 +332,7 @@ def product_form_dialog() -> rx.Component:
                                         "supplier"
                                     ],
                                     class_name="w-full pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                                    color="black",
                                 ),
                                 rx.icon(
                                     "chevron-down",
@@ -351,6 +356,7 @@ def product_form_dialog() -> rx.Component:
                                 key=DataState.editing_product["id"].to_string()
                                 + "_stock",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                                color="black",
                             ),
                         ),
                         form_field(
@@ -365,10 +371,11 @@ def product_form_dialog() -> rx.Component:
                                 key=DataState.editing_product["id"].to_string()
                                 + "_ms",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                                color="black",
                             ),
                         ),
                         form_field(
-                            "Precio ($)",
+                            "Precio (S/.)",
                             rx.el.input(
                                 name="price",
                                 type="number",
@@ -380,6 +387,7 @@ def product_form_dialog() -> rx.Component:
                                 key=DataState.editing_product["id"].to_string()
                                 + "_price",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                                color="black",
                             ),
                         ),
                         class_name="grid grid-cols-3 gap-3 mb-4",
@@ -482,7 +490,6 @@ def detail_row(label: str, value: rx.Var | str) -> rx.Component:
         class_name="",
     )
 
-
 def product_detail_dialog() -> rx.Component:
     return rx.radix.primitives.dialog.root(
         rx.radix.primitives.dialog.portal(
@@ -520,7 +527,7 @@ def product_detail_dialog() -> rx.Component:
                     ),
                     detail_row(
                         "Valor total",
-                        "$"
+                        "S/."
                         + (
                             DataState.selected_product["price"]
                             * DataState.selected_product["stock"]
@@ -575,7 +582,7 @@ def productos_content() -> rx.Component:
             ),
             stat_pill(
                 "Valor inventario",
-                "$" + DataState.total_stock_value.to_string(),
+                "S/." + DataState.total_stock_value.to_string(),
                 "text-emerald-600",
             ),
             class_name="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6",
@@ -586,7 +593,6 @@ def productos_content() -> rx.Component:
         product_delete_dialog(),
         product_detail_dialog(),
     )
-
 
 def productos_page() -> rx.Component:
     return authenticated_layout(

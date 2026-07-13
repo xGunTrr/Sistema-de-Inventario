@@ -1,6 +1,6 @@
 import reflex as rx
+import httpx
 from typing import TypedDict
-
 
 class Product(TypedDict):
     id: int
@@ -12,13 +12,11 @@ class Product(TypedDict):
     min_stock: int
     price: float
 
-
 class ProductType(TypedDict):
     id: int
     name: str
     description: str
     product_count: int
-
 
 class Supplier(TypedDict):
     id: int
@@ -28,7 +26,6 @@ class Supplier(TypedDict):
     phone: str
     product_count: int
 
-
 class Activity(TypedDict):
     id: int
     action: str
@@ -36,7 +33,6 @@ class Activity(TypedDict):
     user: str
     time: str
     icon: str
-
 
 EMPTY_PRODUCT: Product = {
     "id": 0,
@@ -65,251 +61,85 @@ EMPTY_SUPPLIER: Supplier = {
     "product_count": 0,
 }
 
+API_URL = "http://localhost:8000/api"
 
 class DataState(rx.State):
-    products: list[Product] = [
-        {
-            "id": 1,
-            "name": 'Laptop Pro 14"',
-            "sku": "LP-001",
-            "type": "Electrónica",
-            "supplier": "TechCorp",
-            "stock": 24,
-            "min_stock": 10,
-            "price": 1299.00,
-        },
-        {
-            "id": 2,
-            "name": "Mouse Inalámbrico",
-            "sku": "MI-002",
-            "type": "Electrónica",
-            "supplier": "TechCorp",
-            "stock": 5,
-            "min_stock": 15,
-            "price": 29.99,
-        },
-        {
-            "id": 3,
-            "name": "Silla Ergonómica",
-            "sku": "SE-003",
-            "type": "Mobiliario",
-            "supplier": "OfficeMax",
-            "stock": 12,
-            "min_stock": 5,
-            "price": 249.00,
-        },
-        {
-            "id": 4,
-            "name": "Escritorio Ajustable",
-            "sku": "EA-004",
-            "type": "Mobiliario",
-            "supplier": "OfficeMax",
-            "stock": 3,
-            "min_stock": 8,
-            "price": 449.00,
-        },
-        {
-            "id": 5,
-            "name": 'Monitor 27" 4K',
-            "sku": "MN-005",
-            "type": "Electrónica",
-            "supplier": "DisplayCo",
-            "stock": 18,
-            "min_stock": 10,
-            "price": 399.00,
-        },
-        {
-            "id": 6,
-            "name": "Teclado Mecánico",
-            "sku": "TM-006",
-            "type": "Electrónica",
-            "supplier": "TechCorp",
-            "stock": 32,
-            "min_stock": 20,
-            "price": 89.99,
-        },
-        {
-            "id": 7,
-            "name": "Papel A4 (500h)",
-            "sku": "PA-007",
-            "type": "Papelería",
-            "supplier": "PaperPlus",
-            "stock": 150,
-            "min_stock": 50,
-            "price": 8.50,
-        },
-        {
-            "id": 8,
-            "name": "Bolígrafos Pack x12",
-            "sku": "BP-008",
-            "type": "Papelería",
-            "supplier": "PaperPlus",
-            "stock": 4,
-            "min_stock": 30,
-            "price": 12.00,
-        },
-        {
-            "id": 9,
-            "name": "Cámara Web HD",
-            "sku": "CW-009",
-            "type": "Electrónica",
-            "supplier": "DisplayCo",
-            "stock": 22,
-            "min_stock": 10,
-            "price": 79.00,
-        },
-        {
-            "id": 10,
-            "name": "Lámpara LED",
-            "sku": "LL-010",
-            "type": "Mobiliario",
-            "supplier": "OfficeMax",
-            "stock": 15,
-            "min_stock": 8,
-            "price": 39.99,
-        },
-        {
-            "id": 11,
-            "name": "Café Premium 1kg",
-            "sku": "CP-011",
-            "type": "Alimentos",
-            "supplier": "GourmetCo",
-            "stock": 45,
-            "min_stock": 20,
-            "price": 18.50,
-        },
-        {
-            "id": 12,
-            "name": "Agua Mineral 24pk",
-            "sku": "AM-012",
-            "type": "Alimentos",
-            "supplier": "GourmetCo",
-            "stock": 8,
-            "min_stock": 25,
-            "price": 15.00,
-        },
-    ]
+    products = []
+    product_types: list[ProductType] = []
+    suppliers: list[Supplier] = []
+    activities: list[Activity] = []
 
-    product_types: list[ProductType] = [
-        {
-            "id": 1,
-            "name": "Electrónica",
-            "description": "Dispositivos y accesorios electrónicos",
-            "product_count": 5,
-        },
-        {
-            "id": 2,
-            "name": "Mobiliario",
-            "description": "Muebles de oficina y hogar",
-            "product_count": 3,
-        },
-        {
-            "id": 3,
-            "name": "Papelería",
-            "description": "Suministros de oficina y papelería",
-            "product_count": 2,
-        },
-        {
-            "id": 4,
-            "name": "Alimentos",
-            "description": "Productos comestibles y bebidas",
-            "product_count": 2,
-        },
-    ]
+    @rx.event
+    async def load_products(self):
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(f"{API_URL}/products")
 
-    suppliers: list[Supplier] = [
-        {
-            "id": 1,
-            "name": "TechCorp",
-            "contact": "Juan Martínez",
-            "email": "juan@techcorp.com",
-            "phone": "+34 600 111 222",
-            "product_count": 3,
-        },
-        {
-            "id": 2,
-            "name": "OfficeMax",
-            "contact": "María López",
-            "email": "maria@officemax.com",
-            "phone": "+34 600 333 444",
-            "product_count": 3,
-        },
-        {
-            "id": 3,
-            "name": "DisplayCo",
-            "contact": "Carlos Ruiz",
-            "email": "carlos@displayco.com",
-            "phone": "+34 600 555 666",
-            "product_count": 2,
-        },
-        {
-            "id": 4,
-            "name": "PaperPlus",
-            "contact": "Ana García",
-            "email": "ana@paperplus.com",
-            "phone": "+34 600 777 888",
-            "product_count": 2,
-        },
-        {
-            "id": 5,
-            "name": "GourmetCo",
-            "contact": "Luis Fernández",
-            "email": "luis@gourmetco.com",
-            "phone": "+34 600 999 000",
-            "product_count": 2,
-        },
-    ]
+            response.raise_for_status()
 
-    activities: list[Activity] = [
-        {
-            "id": 1,
-            "action": "Producto agregado",
-            "entity": 'Monitor 27" 4K',
-            "user": "Admin",
-            "time": "Hace 5 min",
-            "icon": "plus",
-        },
-        {
-            "id": 2,
-            "action": "Stock actualizado",
-            "entity": "Mouse Inalámbrico",
-            "user": "Admin",
-            "time": "Hace 22 min",
-            "icon": "refresh-cw",
-        },
-        {
-            "id": 3,
-            "action": "Proveedor editado",
-            "entity": "TechCorp",
-            "user": "Admin",
-            "time": "Hace 1 hora",
-            "icon": "pencil",
-        },
-        {
-            "id": 4,
-            "action": "Tipo creado",
-            "entity": "Alimentos",
-            "user": "Admin",
-            "time": "Hace 3 horas",
-            "icon": "tag",
-        },
-        {
-            "id": 5,
-            "action": "Producto eliminado",
-            "entity": "Producto obsoleto",
-            "user": "Admin",
-            "time": "Hace 5 horas",
-            "icon": "trash-2",
-        },
-        {
-            "id": 6,
-            "action": "Stock crítico",
-            "entity": "Escritorio Ajustable",
-            "user": "Sistema",
-            "time": "Hace 1 día",
-            "icon": "triangle-alert",
-        },
-    ]
+            self.products = [
+                self.normalize_product(product)
+                for product in response.json().get("data", [])
+            ]
+
+        except httpx.RequestError as error:
+            print(f"Error de conexión: {error}")
+
+        except httpx.HTTPStatusError as error:
+            print(f"Error HTTP: {error.response.text}")
+
+    @rx.event
+    async def load_types(self):
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{API_URL}/types")
+
+        if response.status_code == 200:
+            self.product_types = response.json()["data"]
+
+    @rx.event
+    async def load_suppliers(self):
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{API_URL}/suppliers")
+
+        if response.status_code == 200:
+            self.suppliers = response.json()["data"]
+
+    @rx.event
+    async def load_data(self):
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                products_response = await client.get(
+                    f"{API_URL}/products"
+                )
+                types_response = await client.get(
+                    f"{API_URL}/types"
+                )
+                suppliers_response = await client.get(
+                    f"{API_URL}/suppliers"
+                )
+
+            products_response.raise_for_status()
+            types_response.raise_for_status()
+            suppliers_response.raise_for_status()
+
+            products_data = products_response.json().get("data", [])
+
+            self.products = [
+                self.normalize_product(product)
+                for product in products_data
+            ]
+
+            self.product_types = types_response.json().get("data", [])
+            self.suppliers = suppliers_response.json().get("data", [])
+
+        except httpx.RequestError as error:
+            print(f"No se pudo conectar con la API: {error}")
+
+        except httpx.HTTPStatusError as error:
+            print(f"Error HTTP: {error.response.text}")
+
+        except Exception as error:
+            print(f"Error inesperado cargando datos: {error}")
 
     @rx.var
     def total_products(self) -> int:
@@ -325,7 +155,7 @@ class DataState(rx.State):
 
     @rx.var
     def total_stock_value(self) -> float:
-        return sum(p["stock"] * p["price"] for p in self.products)
+        return round(sum(p["stock"] * p["price"] for p in self.products), 2)
 
     @rx.var
     def low_stock_products(self) -> list[Product]:
@@ -548,26 +378,130 @@ class DataState(rx.State):
         self.show_product_delete = False
 
     @rx.event
-    def confirm_delete_product(self):
-        pid = self.selected_product["id"]
+    async def confirm_delete_product(self):
+        product_id = self.selected_product["id"]
         name = self.selected_product["name"]
-        self.products = [p for p in self.products if p["id"] != pid]
-        self._recount_types()
-        self._recount_suppliers()
-        self.show_product_delete = False
-        yield rx.toast(
-            title="Producto eliminado",
-            description=f"'{name}' se eliminó correctamente.",
-            duration=3000,
-            close_button=True,
-        )
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.delete(
+                    f"{API_URL}/products/{product_id}"
+                )
+
+            if response.status_code >= 400:
+                try:
+                    detail = response.json().get(
+                        "detail",
+                        "No se pudo eliminar el producto",
+                    )
+                except ValueError:
+                    detail = "No se pudo eliminar el producto"
+
+                self.show_product_delete = False
+
+                yield rx.toast(
+                    title="Error al eliminar",
+                    description=(
+                        detail if isinstance(detail, str) else str(detail)
+                    ),
+                    duration=4000,
+                    close_button=True,
+                )
+                return
+
+            await self.load_data()
+
+            self.show_product_delete = False
+            self.selected_product = EMPTY_PRODUCT
+
+            yield rx.toast(
+                title="Producto eliminado",
+                description=f"'{name}' se eliminó correctamente.",
+                duration=3000,
+                close_button=True,
+            )
+
+        except httpx.RequestError:
+            self.show_product_delete = False
+
+            yield rx.toast(
+                title="Error de conexión",
+                description="No se pudo conectar con la API.",
+                duration=4000,
+                close_button=True,
+            )
+
+        except Exception as error:
+            self.show_product_delete = False
+
+            yield rx.toast(
+                title="Error inesperado",
+                description=str(error),
+                duration=4000,
+                close_button=True,
+            )
+
+    def normalize_product(self, product: dict) -> Product:
+        product_type = product.get("type")
+        supplier = product.get("supplier")
+
+        return {
+            "id": product["id"],
+            "name": product["name"],
+            "sku": product["sku"],
+            "type": (
+                product_type.get("name", "")
+                if isinstance(product_type, dict)
+                else product_type or ""
+            ),
+            "supplier": (
+                supplier.get("name", "")
+                if isinstance(supplier, dict)
+                else supplier or ""
+            ),
+            "stock": product["stock"],
+            "min_stock": product["min_stock"],
+            "price": float(product["price"]),
+        }
 
     @rx.event
-    def submit_product(self, form_data: dict):
+    async def submit_product(self, form_data: dict):
         name = form_data.get("name", "").strip()
         sku = form_data.get("sku", "").strip()
-        type_ = form_data.get("type", "").strip()
-        supplier = form_data.get("supplier", "").strip()
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{API_URL}/suppliers")
+
+        type_name = form_data.get("type")
+
+        type_id = next(
+            (
+                t["id"]
+                for t in self.product_types
+                if t["name"] == type_name
+            ),
+            None,
+        )
+
+        if type_id is None:
+            self.product_form_error = "Tipo inválido"
+            return
+
+        supplier_name = form_data.get("supplier")
+
+        supplier_id = next(
+            (
+                s["id"]
+                for s in self.suppliers
+                if s["name"] == supplier_name
+            ),
+            None,
+        )
+
+        if supplier_id is None:
+            self.product_form_error = "Proveedor inválido"
+            return
+
         stock_s = form_data.get("stock", "0").strip()
         min_stock_s = form_data.get("min_stock", "0").strip()
         price_s = form_data.get("price", "0").strip()
@@ -575,9 +509,7 @@ class DataState(rx.State):
         if not name or not sku:
             self.product_form_error = "Nombre y SKU son obligatorios"
             return
-        if not type_ or not supplier:
-            self.product_form_error = "Selecciona tipo y proveedor"
-            return
+
         try:
             stock = int(stock_s)
             min_stock = int(min_stock_s)
@@ -585,53 +517,60 @@ class DataState(rx.State):
         except ValueError:
             self.product_form_error = "Valores numéricos inválidos"
             return
+
         if stock < 0 or min_stock < 0 or price < 0:
             self.product_form_error = "Los valores no pueden ser negativos"
             return
 
-        if self.is_editing_product:
-            pid = self.editing_product["id"]
-            for p in self.products:
-                if p["sku"] == sku and p["id"] != pid:
-                    self.product_form_error = "El SKU ya existe"
-                    return
-            for i, p in enumerate(self.products):
-                if p["id"] == pid:
-                    self.products[i] = {
-                        "id": pid,
-                        "name": name,
-                        "sku": sku,
-                        "type": type_,
-                        "supplier": supplier,
-                        "stock": stock,
-                        "min_stock": min_stock,
-                        "price": price,
-                    }
-                    break
-            msg = "Producto actualizado"
-        else:
-            for p in self.products:
-                if p["sku"] == sku:
-                    self.product_form_error = "El SKU ya existe"
-                    return
-            new_p: Product = {
-                "id": self._next_product_id(),
-                "name": name,
-                "sku": sku,
-                "type": type_,
-                "supplier": supplier,
-                "stock": stock,
-                "min_stock": min_stock,
-                "price": price,
-            }
-            self.products.append(new_p)
-            msg = "Producto creado"
+        body = {
+            "name": name,
+            "sku": sku,
+            "type_id": type_id,
+            "supplier_id": supplier_id,
+            "stock": stock,
+            "min_stock": min_stock,
+            "price": price,
+        }
 
-        self._recount_types()
-        self._recount_suppliers()
-        self.show_product_form = False
-        self.product_form_error = ""
-        yield rx.toast(title=msg, duration=3000, close_button=True)
+        try:
+            async with httpx.AsyncClient() as client:
+                if self.is_editing_product:
+
+                    pid = self.editing_product["id"]
+
+                    response = await client.put(
+                        f"{API_URL}/products/{pid}",
+                        json=body,
+                    )
+
+                    msg = "Producto actualizado"
+
+                else:
+
+                    response = await client.post(
+                        f"{API_URL}/products",
+                        json=body,
+                    )
+
+                    msg = "Producto creado"
+
+            if response.status_code >= 400:
+                self.product_form_error = response.json()["detail"]
+                return
+
+            await self.load_data()
+
+            self.show_product_form = False
+            self.product_form_error = ""
+
+            yield rx.toast(
+                title=msg,
+                duration=3000,
+                close_button=True,
+            )
+
+        except Exception as e:
+            self.product_form_error = str(e)
 
     @rx.event
     def set_type_search(self, v: str):
@@ -679,75 +618,133 @@ class DataState(rx.State):
         self.show_type_delete = False
 
     @rx.event
-    def confirm_delete_type(self):
-        tid = self.selected_type["id"]
+    async def confirm_delete_type(self):
+        type_id = self.selected_type["id"]
         name = self.selected_type["name"]
-        count = sum(1 for p in self.products if p["type"] == name)
-        if count > 0:
+        product_count = self.selected_type["product_count"]
+
+        if product_count > 0:
             self.show_type_delete = False
+
             yield rx.toast(
                 title="No se puede eliminar",
-                description=f"Hay {count} producto(s) usando este tipo.",
+                description=f"Hay {product_count} producto(s) usando este tipo.",
                 duration=4000,
                 close_button=True,
             )
             return
-        self.product_types = [t for t in self.product_types if t["id"] != tid]
-        self.show_type_delete = False
-        yield rx.toast(title="Tipo eliminado", duration=3000, close_button=True)
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.delete(
+                    f"{API_URL}/types/{type_id}",
+                )
+
+            if response.status_code >= 400:
+                try:
+                    detail = response.json().get(
+                        "detail",
+                        "No se pudo eliminar el tipo",
+                    )
+                except ValueError:
+                    detail = "No se pudo eliminar el tipo"
+
+                self.show_type_delete = False
+
+                yield rx.toast(
+                    title="Error al eliminar",
+                    description=(
+                        detail if isinstance(detail, str) else str(detail)
+                    ),
+                    duration=4000,
+                    close_button=True,
+                )
+                return
+
+            await self.load_data()
+
+            self.show_type_delete = False
+            self.selected_type = EMPTY_TYPE
+
+            yield rx.toast(
+                title="Tipo eliminado",
+                description=f"'{name}' se eliminó correctamente.",
+                duration=3000,
+                close_button=True,
+            )
+
+        except httpx.RequestError:
+            self.show_type_delete = False
+
+            yield rx.toast(
+                title="Error de conexión",
+                description="No se pudo conectar con la API.",
+                duration=4000,
+                close_button=True,
+            )
 
     @rx.event
-    def submit_type(self, form_data: dict):
+    async def submit_type(self, form_data: dict):
         name = form_data.get("name", "").strip()
         description = form_data.get("description", "").strip()
+
         if not name:
             self.type_form_error = "El nombre es obligatorio"
             return
 
-        if self.is_editing_type:
-            tid = self.editing_type["id"]
-            for t in self.product_types:
-                if t["name"].lower() == name.lower() and t["id"] != tid:
-                    self.type_form_error = "Ya existe un tipo con ese nombre"
-                    return
-            old_name = ""
-            for t in self.product_types:
-                if t["id"] == tid:
-                    old_name = t["name"]
-                    break
-            for i, t in enumerate(self.product_types):
-                if t["id"] == tid:
-                    self.product_types[i] = {
-                        "id": tid,
-                        "name": name,
-                        "description": description,
-                        "product_count": t["product_count"],
-                    }
-                    break
-            if old_name and old_name != name:
-                for p in self.products:
-                    if p["type"] == old_name:
-                        p["type"] = name
-            msg = "Tipo actualizado"
-        else:
-            for t in self.product_types:
-                if t["name"].lower() == name.lower():
-                    self.type_form_error = "Ya existe un tipo con ese nombre"
-                    return
-            self.product_types.append(
-                {
-                    "id": self._next_type_id(),
-                    "name": name,
-                    "description": description,
-                    "product_count": 0,
-                }
-            )
-            msg = "Tipo creado"
+        body = {
+            "name": name,
+            "description": description,
+        }
 
-        self._recount_types()
-        self.show_type_form = False
-        self.type_form_error = ""
-        yield rx.toast(title=msg, duration=3000, close_button=True)
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                if self.is_editing_type:
+                    type_id = self.editing_type["id"]
+
+                    response = await client.put(
+                        f"{API_URL}/types/{type_id}",
+                        json=body,
+                    )
+
+                    message = "Tipo actualizado"
+                else:
+                    response = await client.post(
+                        f"{API_URL}/types",
+                        json=body,
+                    )
+
+                    message = "Tipo creado"
+
+            if response.status_code >= 400:
+                try:
+                    detail = response.json().get("detail", "No se pudo guardar el tipo")
+                except ValueError:
+                    detail = "No se pudo guardar el tipo"
+
+                self.type_form_error = (
+                    detail if isinstance(detail, str) else str(detail)
+                )
+                return
+
+            # Recarga tipos, productos y proveedores desde PostgreSQL.
+            await self.load_data()
+
+            self.show_type_form = False
+            self.type_form_error = ""
+            self.is_editing_type = False
+
+            yield rx.toast(
+                title=message,
+                duration=3000,
+                close_button=True,
+            )
+
+        except httpx.RequestError:
+            self.type_form_error = "No se pudo conectar con la API"
+
+        except Exception as error:
+            self.type_form_error = f"Error inesperado: {error}"
 
     @rx.event
     def set_supplier_search(self, v: str):
@@ -797,87 +794,138 @@ class DataState(rx.State):
         self.show_supplier_delete = False
 
     @rx.event
-    def confirm_delete_supplier(self):
-        sid = self.selected_supplier["id"]
+    async def confirm_delete_supplier(self):
+        supplier_id = self.selected_supplier["id"]
         name = self.selected_supplier["name"]
-        count = sum(1 for p in self.products if p["supplier"] == name)
-        if count > 0:
+        product_count = self.selected_supplier["product_count"]
+
+        if product_count > 0:
             self.show_supplier_delete = False
+
             yield rx.toast(
                 title="No se puede eliminar",
-                description=f"Hay {count} producto(s) de este proveedor.",
+                description=f"Hay {product_count} producto(s) de este proveedor.",
                 duration=4000,
                 close_button=True,
             )
             return
-        self.suppliers = [s for s in self.suppliers if s["id"] != sid]
-        self.show_supplier_delete = False
-        yield rx.toast(
-            title="Proveedor eliminado", duration=3000, close_button=True
-        )
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.delete(
+                    f"{API_URL}/suppliers/{supplier_id}",
+                )
+
+            if response.status_code >= 400:
+                try:
+                    detail = response.json().get(
+                        "detail",
+                        "No se pudo eliminar el proveedor",
+                    )
+                except ValueError:
+                    detail = "No se pudo eliminar el proveedor"
+
+                self.show_supplier_delete = False
+
+                yield rx.toast(
+                    title="Error al eliminar",
+                    description=detail if isinstance(detail, str) else str(detail),
+                    duration=4000,
+                    close_button=True,
+                )
+                return
+
+            await self.load_data()
+
+            self.show_supplier_delete = False
+            self.selected_supplier = EMPTY_SUPPLIER
+
+            yield rx.toast(
+                title="Proveedor eliminado",
+                description=f"'{name}' se eliminó correctamente.",
+                duration=3000,
+                close_button=True,
+            )
+
+        except httpx.RequestError:
+            self.show_supplier_delete = False
+
+            yield rx.toast(
+                title="Error de conexión",
+                description="No se pudo conectar con la API.",
+                duration=4000,
+                close_button=True,
+            )
 
     @rx.event
-    def submit_supplier(self, form_data: dict):
+    async def submit_supplier(self, form_data: dict):
         name = form_data.get("name", "").strip()
         contact = form_data.get("contact", "").strip()
         email = form_data.get("email", "").strip()
         phone = form_data.get("phone", "").strip()
+
         if not name:
             self.supplier_form_error = "El nombre es obligatorio"
             return
+
         if email and "@" not in email:
             self.supplier_form_error = "Email inválido"
             return
 
-        if self.is_editing_supplier:
-            sid = self.editing_supplier["id"]
-            for s in self.suppliers:
-                if s["name"].lower() == name.lower() and s["id"] != sid:
-                    self.supplier_form_error = (
-                        "Ya existe un proveedor con ese nombre"
-                    )
-                    return
-            old_name = ""
-            for s in self.suppliers:
-                if s["id"] == sid:
-                    old_name = s["name"]
-                    break
-            for i, s in enumerate(self.suppliers):
-                if s["id"] == sid:
-                    self.suppliers[i] = {
-                        "id": sid,
-                        "name": name,
-                        "contact": contact,
-                        "email": email,
-                        "phone": phone,
-                        "product_count": s["product_count"],
-                    }
-                    break
-            if old_name and old_name != name:
-                for p in self.products:
-                    if p["supplier"] == old_name:
-                        p["supplier"] = name
-            msg = "Proveedor actualizado"
-        else:
-            for s in self.suppliers:
-                if s["name"].lower() == name.lower():
-                    self.supplier_form_error = (
-                        "Ya existe un proveedor con ese nombre"
-                    )
-                    return
-            self.suppliers.append(
-                {
-                    "id": self._next_supplier_id(),
-                    "name": name,
-                    "contact": contact,
-                    "email": email,
-                    "phone": phone,
-                    "product_count": 0,
-                }
-            )
-            msg = "Proveedor creado"
+        body = {
+            "name": name,
+            "contact": contact,
+            "email": email,
+            "phone": phone,
+        }
 
-        self._recount_suppliers()
-        self.show_supplier_form = False
-        self.supplier_form_error = ""
-        yield rx.toast(title=msg, duration=3000, close_button=True)
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                if self.is_editing_supplier:
+                    supplier_id = self.editing_supplier["id"]
+
+                    response = await client.put(
+                        f"{API_URL}/suppliers/{supplier_id}",
+                        json=body,
+                    )
+
+                    message = "Proveedor actualizado"
+                else:
+                    response = await client.post(
+                        f"{API_URL}/suppliers",
+                        json=body,
+                    )
+
+                    message = "Proveedor creado"
+
+            if response.status_code >= 400:
+                try:
+                    detail = response.json().get(
+                        "detail",
+                        "No se pudo guardar el proveedor",
+                    )
+                except ValueError:
+                    detail = "No se pudo guardar el proveedor"
+
+                self.supplier_form_error = (
+                    detail if isinstance(detail, str) else str(detail)
+                )
+                return
+
+            await self.load_data()
+
+            self.show_supplier_form = False
+            self.supplier_form_error = ""
+            self.is_editing_supplier = False
+
+            yield rx.toast(
+                title=message,
+                duration=3000,
+                close_button=True,
+            )
+
+        except httpx.RequestError:
+            self.supplier_form_error = "No se pudo conectar con la API"
+
+        except Exception as error:
+            self.supplier_form_error = f"Error inesperado: {error}"

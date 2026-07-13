@@ -1,4 +1,8 @@
-
+sqlalchemy
 reflex[db]==0.9.6.post1
 reflex-enterprise
 fastapi
+python-dotenv
+pydantic
+psycopg2-binary
+httpx

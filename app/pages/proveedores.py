@@ -1,9 +1,12 @@
 import reflex as rx
+
 from app.components.layout import authenticated_layout
 from app.states.data_state import DataState, Supplier
 
-
 def supplier_card(s: Supplier) -> rx.Component:
+    """
+        ui: Carta de proveedores
+    """
     return rx.el.div(
         rx.el.div(
             rx.el.div(
@@ -60,8 +63,10 @@ def supplier_card(s: Supplier) -> rx.Component:
         class_name="bg-white border border-gray-200 rounded-xl p-5 hover:border-gray-300 transition-colors",
     )
 
-
 def suppliers_empty() -> rx.Component:
+    """
+        ui: Se muestra esta interfaz en caso de que no existan proveedores
+    """
     return rx.el.div(
         rx.el.div(
             rx.icon("truck", class_name="h-6 w-6 text-gray-400"),
@@ -78,8 +83,10 @@ def suppliers_empty() -> rx.Component:
         class_name="flex flex-col items-center justify-center py-16 bg-white border border-gray-200 rounded-xl",
     )
 
-
 def supplier_form_dialog() -> rx.Component:
+    """
+        ui: Pop up formulario de registro de proveedor
+    """
     return rx.radix.primitives.dialog.root(
         rx.radix.primitives.dialog.portal(
             rx.radix.primitives.dialog.overlay(
@@ -111,9 +118,10 @@ def supplier_form_dialog() -> rx.Component:
                             name="name",
                             default_value=DataState.editing_supplier["name"],
                             key=DataState.editing_supplier["id"].to_string()
-                            + "_name",
+                                + "_name",
                             placeholder="Ej. TechCorp",
                             class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                            color="black",
                         ),
                         class_name="mb-3",
                     ),
@@ -126,9 +134,10 @@ def supplier_form_dialog() -> rx.Component:
                             name="contact",
                             default_value=DataState.editing_supplier["contact"],
                             key=DataState.editing_supplier["id"].to_string()
-                            + "_contact",
+                                + "_contact",
                             placeholder="Nombre del contacto",
                             class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                            color="black",
                         ),
                         class_name="mb-3",
                     ),
@@ -145,9 +154,10 @@ def supplier_form_dialog() -> rx.Component:
                                     "email"
                                 ],
                                 key=DataState.editing_supplier["id"].to_string()
-                                + "_email",
+                                    + "_email",
                                 placeholder="email@ejemplo.com",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                                color="black",
                             ),
                         ),
                         rx.el.div(
@@ -161,9 +171,10 @@ def supplier_form_dialog() -> rx.Component:
                                     "phone"
                                 ],
                                 key=DataState.editing_supplier["id"].to_string()
-                                + "_phone",
+                                    + "_phone",
                                 placeholder="+34 600 000 000",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                                color="black",
                             ),
                         ),
                         class_name="grid grid-cols-2 gap-3 mb-4",
@@ -211,8 +222,10 @@ def supplier_form_dialog() -> rx.Component:
         on_open_change=DataState.close_supplier_form,
     )
 
-
 def supplier_delete_dialog() -> rx.Component:
+    """
+        ui: Pop up de advertencia de eliminación de proveedor
+    """
     return rx.radix.primitives.dialog.root(
         rx.radix.primitives.dialog.portal(
             rx.radix.primitives.dialog.overlay(
@@ -258,8 +271,10 @@ def supplier_delete_dialog() -> rx.Component:
         on_open_change=DataState.close_delete_supplier,
     )
 
-
 def supplier_detail_dialog() -> rx.Component:
+    """
+        ui: Detalles del proveedor (nombre, email, celular)
+    """
     return rx.radix.primitives.dialog.root(
         rx.radix.primitives.dialog.portal(
             rx.radix.primitives.dialog.overlay(
@@ -320,8 +335,10 @@ def supplier_detail_dialog() -> rx.Component:
         on_open_change=DataState.close_supplier_detail,
     )
 
-
 def proveedores_content() -> rx.Component:
+    """
+        ui: Contenido completo de la pestaña de proveedores
+    """
     return rx.el.div(
         rx.el.div(
             rx.el.div(
@@ -331,6 +348,7 @@ def proveedores_content() -> rx.Component:
                 ),
                 rx.el.input(
                     placeholder="Buscar proveedores...",
+                    color="black",
                     default_value=DataState.supplier_search,
                     on_change=DataState.set_supplier_search.debounce(300),
                     class_name="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm w-full md:w-72 focus:outline-hidden focus:ring-2 focus:ring-blue-500",
@@ -358,8 +376,10 @@ def proveedores_content() -> rx.Component:
         supplier_detail_dialog(),
     )
 
-
 def proveedores_page() -> rx.Component:
+    """
+        ui-details: Detalles generales de la pestañana de proveedores (TITLE, SUBTITLE)
+    """
     return authenticated_layout(
         proveedores_content(),
         title="Proveedores",

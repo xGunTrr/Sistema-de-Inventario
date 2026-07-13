@@ -2,9 +2,7 @@ import reflex as rx
 from app.components.layout import authenticated_layout
 from app.states.data_state import DataState
 
-
 TYPE_COLORS = ["#2563eb", "#7c3aed", "#10b981", "#f59e0b", "#ef4444"]
-
 
 def metric_card(
     icon: str,
@@ -33,7 +31,6 @@ def metric_card(
         rx.el.p(value, class_name="text-2xl font-semibold text-gray-900"),
         class_name="bg-white border border-gray-200 rounded-xl p-5 hover:border-gray-300 transition-colors",
     )
-
 
 def low_stock_row(product: dict) -> rx.Component:
     return rx.el.div(
@@ -68,7 +65,6 @@ def low_stock_row(product: dict) -> rx.Component:
         class_name="flex items-center justify-between py-3 border-b border-gray-100 last:border-0",
     )
 
-
 def supplier_row(supplier: dict, index: int) -> rx.Component:
     return rx.el.div(
         rx.el.div(
@@ -101,7 +97,6 @@ def supplier_row(supplier: dict, index: int) -> rx.Component:
         class_name="flex items-center justify-between py-3 border-b border-gray-100 last:border-0",
     )
 
-
 def activity_row(activity: dict) -> rx.Component:
     return rx.el.div(
         rx.el.div(
@@ -125,7 +120,6 @@ def activity_row(activity: dict) -> rx.Component:
         ),
         class_name="flex items-start gap-3 py-3 border-b border-gray-100 last:border-0",
     )
-
 
 def type_distribution_chart() -> rx.Component:
     return rx.el.div(
@@ -187,7 +181,6 @@ def type_distribution_chart() -> rx.Component:
         class_name="bg-white border border-gray-200 rounded-xl p-5",
     )
 
-
 def quick_action(
     icon: str, label: str, desc: str, href: str, color: str
 ) -> rx.Component:
@@ -235,18 +228,10 @@ def quick_actions_section() -> rx.Component:
                 "/proveedores",
                 "text-emerald-600",
             ),
-            quick_action(
-                "code",
-                "Explorar API",
-                "Endpoints REST",
-                "/api",
-                "text-amber-600",
-            ),
-            class_name="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3",
+            class_name="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3",
         ),
         class_name="mb-6",
     )
-
 
 def dashboard_content() -> rx.Component:
     return rx.el.div(
@@ -386,8 +371,7 @@ def dashboard_content() -> rx.Component:
         ),
     )
 
-
-def dashboard_page() -> rx.Component:
+def dashboard_page(on_load=DataState.load_data) -> rx.Component:
     return authenticated_layout(
         dashboard_content(),
         title="Dashboard",

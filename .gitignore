@@ -1,3 +1,8 @@
+.web
+assets/external/
+.states
+*.db
+*.py[cod]
 __pycache__/
 .web/
 .states/
@@ -6,3 +11,5 @@ __pycache__/
 .venv/
 node_modules/
 /app/__pycache__/
+.idea/
+.env

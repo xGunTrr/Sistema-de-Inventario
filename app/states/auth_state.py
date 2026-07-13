@@ -1,6 +1,5 @@
 import reflex as rx
 
-
 class AuthState(rx.State):
     is_authenticated: bool = False
     username: str = ""

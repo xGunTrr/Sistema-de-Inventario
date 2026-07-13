@@ -1,7 +1,5 @@
 import reflex as rx
 from app.components.sidebar import sidebar
-from app.states.auth_state import AuthState
-
 
 def page_header(title: str, subtitle: str) -> rx.Component:
     return rx.el.div(
@@ -18,6 +16,7 @@ def page_header(title: str, subtitle: str) -> rx.Component:
                 rx.el.input(
                     placeholder="Buscar...",
                     class_name="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64",
+                    color="black",
                 ),
                 class_name="relative hidden md:block",
             ),
@@ -29,7 +28,6 @@ def page_header(title: str, subtitle: str) -> rx.Component:
         ),
         class_name="flex items-start justify-between mb-6",
     )
-
 
 def authenticated_layout(
     content: rx.Component, title: str = "", subtitle: str = ""

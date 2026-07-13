@@ -2,7 +2,6 @@ import reflex as rx
 from app.components.layout import authenticated_layout
 from app.states.data_state import DataState, ProductType
 
-
 def type_card(t: ProductType) -> rx.Component:
     return rx.el.div(
         rx.el.div(
@@ -55,7 +54,7 @@ def types_empty() -> rx.Component:
             class_name="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center mb-4",
         ),
         rx.el.p(
-            "No hay tipos", class_name="text-sm font-medium text-gray-900 mb-1"
+                "No hay tipos", class_name="text-sm font-medium text-gray-900 mb-1"
         ),
         rx.el.p(
             "Crea un tipo para comenzar a categorizar tus productos.",
@@ -63,7 +62,6 @@ def types_empty() -> rx.Component:
         ),
         class_name="flex flex-col items-center justify-center py-16 bg-white border border-gray-200 rounded-xl",
     )
-
 
 def type_form_dialog() -> rx.Component:
     return rx.radix.primitives.dialog.root(
@@ -100,6 +98,7 @@ def type_form_dialog() -> rx.Component:
                             + "_name",
                             placeholder="Ej. Electrónica",
                             class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                            color="black",
                         ),
                         class_name="mb-3",
                     ),
@@ -116,6 +115,7 @@ def type_form_dialog() -> rx.Component:
                             placeholder="Descripción opcional",
                             rows="3",
                             class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 resize-none",
+                            color="black",
                         ),
                         class_name="mb-4",
                     ),
@@ -159,7 +159,6 @@ def type_form_dialog() -> rx.Component:
         open=DataState.show_type_form,
         on_open_change=DataState.close_type_form,
     )
-
 
 def type_delete_dialog() -> rx.Component:
     return rx.radix.primitives.dialog.root(
@@ -256,7 +255,6 @@ def type_detail_dialog() -> rx.Component:
         on_open_change=DataState.close_type_detail,
     )
 
-
 def tipos_content() -> rx.Component:
     return rx.el.div(
         rx.el.div(
@@ -270,6 +268,7 @@ def tipos_content() -> rx.Component:
                     default_value=DataState.type_search,
                     on_change=DataState.set_type_search.debounce(300),
                     class_name="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm w-full md:w-72 focus:outline-hidden focus:ring-2 focus:ring-blue-500",
+                    color="black",
                 ),
                 class_name="relative flex-1",
             ),
@@ -293,7 +292,6 @@ def tipos_content() -> rx.Component:
         type_delete_dialog(),
         type_detail_dialog(),
     )
-
 
 def tipos_page() -> rx.Component:
     return authenticated_layout(

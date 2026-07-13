@@ -1,7 +1,6 @@
 import reflex as rx
 from app.states.auth_state import AuthState
 
-
 def nav_link(
     icon: str, label: str, href: str, active: bool = False
 ) -> rx.Component:
@@ -15,7 +14,6 @@ def nav_link(
             "flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors",
         ),
     )
-
 
 def sidebar() -> rx.Component:
     return rx.el.aside(
@@ -46,14 +44,6 @@ def sidebar() -> rx.Component:
                     nav_link("package", "Productos", "/productos"),
                     nav_link("tag", "Tipos", "/tipos"),
                     nav_link("truck", "Proveedores", "/proveedores"),
-                    class_name="flex flex-col gap-1",
-                ),
-                rx.el.div(
-                    rx.el.p(
-                        "DESARROLLO",
-                        class_name="px-3 py-2 mt-4 text-xs font-semibold text-gray-400 tracking-wider",
-                    ),
-                    nav_link("code", "API interna", "/api"),
                     class_name="flex flex-col gap-1",
                 ),
                 rx.el.div(
