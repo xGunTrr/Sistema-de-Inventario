@@ -1,6 +1,29 @@
 import reflex as rx
 from app.components.layout import authenticated_layout
-from app.states.data_state import DataState, Product
+from app.states.data_state import DataState, Producto
+
+CATEGORIAS = ["Abarrotes", "Panaderia", "Bebidas", "Lacteos", "Carnes", "Frutas y Verduras", "Enlatados"]
+
+CATEGORY_COLORS = {
+    "Abarrotes": ("text-amber-700 bg-amber-50", "bg-amber-500"),
+    "Panaderia": ("text-orange-700 bg-orange-50", "bg-orange-500"),
+    "Bebidas": ("text-blue-700 bg-blue-50", "bg-blue-500"),
+    "Lacteos": ("text-sky-700 bg-sky-50", "bg-sky-500"),
+    "Carnes": ("text-red-700 bg-red-50", "bg-red-500"),
+    "Frutas y Verduras": ("text-green-700 bg-green-50", "bg-green-500"),
+    "Enlatados": ("text-purple-700 bg-purple-50", "bg-purple-500"),
+}
+
+DEFAULT_CATEGORY_COLOR = ("text-gray-700 bg-gray-50", "bg-gray-500")
+
+def category_badge(cat: rx.Var) -> rx.Component:
+    badge_class = DEFAULT_CATEGORY_COLOR[0]
+    for cat_name, colors in CATEGORY_COLORS.items():
+        badge_class = rx.cond(cat == cat_name, colors[0], badge_class)
+    return rx.el.span(
+        rx.cond(cat, cat, "Sin categoría"),
+        class_name=f"inline-flex items-center text-xs font-medium px-2 py-1 rounded-full {badge_class}",
+    )
 
 def stat_pill(label: str, value: rx.Var | str, color: str) -> rx.Component:
     return rx.el.div(
@@ -18,9 +41,9 @@ def toolbar() -> rx.Component:
                     class_name="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2",
                 ),
                 rx.el.input(
-                    placeholder="Buscar por nombre o SKU...",
-                    default_value=DataState.product_search,
-                    on_change=DataState.set_product_search.debounce(300),
+                    placeholder="Buscar por nombre o código...",
+                    default_value=DataState.producto_search,
+                    on_change=DataState.set_producto_search.debounce(300),
                     class_name="pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm w-full md:w-72 focus:outline-hidden focus:ring-2 focus:ring-blue-500",
                     color="black",
                 ),
@@ -28,29 +51,13 @@ def toolbar() -> rx.Component:
             ),
             rx.el.div(
                 rx.el.select(
+                    rx.el.option("Todas", value="Todos"),
                     rx.foreach(
-                        DataState.type_filter_options,
-                        lambda o: rx.el.option(o, value=o),
+                        DataState.categoria_filter_options,
+                        lambda o: rx.el.option(o["label"], value=o["label"]),
                     ),
-                    default_value=DataState.product_type_filter,
-                    on_change=DataState.set_product_type_filter,
-                    class_name="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
-                    color="black",
-                ),
-                rx.icon(
-                    "chevron-down",
-                    class_name="h-4 w-4 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none",
-                ),
-                class_name="relative",
-            ),
-            rx.el.div(
-                rx.el.select(
-                    rx.foreach(
-                        DataState.supplier_filter_options,
-                        lambda o: rx.el.option(o, value=o),
-                    ),
-                    default_value=DataState.product_supplier_filter,
-                    on_change=DataState.set_product_supplier_filter,
+                    default_value=DataState.categoria_filter,
+                    on_change=DataState.set_categoria_filter,
                     class_name="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
                     color="black",
                 ),
@@ -63,10 +70,12 @@ def toolbar() -> rx.Component:
             rx.el.div(
                 rx.el.select(
                     rx.el.option("Todos", value="Todos"),
-                    rx.el.option("Stock bajo", value="Bajo"),
-                    rx.el.option("Stock OK", value="OK"),
-                    default_value=DataState.product_stock_filter,
-                    on_change=DataState.set_product_stock_filter,
+                    rx.foreach(
+                        DataState.proveedor_filter_options,
+                        lambda o: rx.el.option(o["label"], value=o["value"]),
+                    ),
+                    default_value=DataState.producto_proveedor_filter,
+                    on_change=DataState.set_producto_proveedor_filter,
                     class_name="pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
                     color="black",
                 ),
@@ -87,60 +96,42 @@ def toolbar() -> rx.Component:
         rx.el.button(
             rx.icon("plus", class_name="h-4 w-4"),
             "Nuevo producto",
-            on_click=DataState.open_new_product,
+            on_click=DataState.open_new_producto,
             class_name="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shrink-0",
         ),
         class_name="flex flex-col md:flex-row md:items-center gap-3 mb-4",
     )
 
 
-def product_row(p: Product) -> rx.Component:
+def producto_row(p: Producto) -> rx.Component:
     return rx.el.tr(
         rx.el.td(
             rx.el.div(
                 rx.el.p(
-                    p["name"], class_name="text-sm font-medium text-gray-900"
+                    p["NombreProducto"], class_name="text-sm font-medium text-gray-900"
                 ),
-                rx.el.p(f"SKU: {p['sku']}", class_name="text-xs text-gray-500"),
+                rx.el.p(f"Código: {p['CodigoProducto']}", class_name="text-xs text-gray-500"),
             ),
             class_name="px-4 py-3",
         ),
         rx.el.td(
-            rx.el.span(
-                p["type"],
-                class_name="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded-full w-fit",
-            ),
+            category_badge(p["CategoriaProducto"]),
             class_name="px-4 py-3",
         ),
         rx.el.td(
-            rx.el.p(p["supplier"], class_name="text-sm text-gray-700"),
-            class_name="px-4 py-3",
-        ),
-        rx.el.td(
-            rx.cond(
-                p["stock"] < p["min_stock"],
-                rx.el.div(
-                    rx.icon(
-                        "triangle-alert", class_name="h-3.5 w-3.5 text-red-500"
-                    ),
-                    rx.el.span(
-                        p["stock"].to_string()
-                        + " / "
-                        + p["min_stock"].to_string(),
-                        class_name="text-sm font-semibold text-red-600",
-                    ),
-                    class_name="flex items-center gap-1.5",
+            rx.el.p(
+                rx.cond(
+                    p["proveedor"],
+                    p["proveedor"]["NombreProveedor"],
+                    "—",
                 ),
-                rx.el.span(
-                    p["stock"].to_string() + " / " + p["min_stock"].to_string(),
-                    class_name="text-sm text-gray-700",
-                ),
+                class_name="text-sm text-gray-700",
             ),
             class_name="px-4 py-3",
         ),
         rx.el.td(
             rx.el.p(
-                "S/." + p["price"].to_string(),
+                "S/." + p["PrecioVenta"].to_string(),
                 class_name="text-sm font-medium text-gray-900",
             ),
             class_name="px-4 py-3",
@@ -149,19 +140,19 @@ def product_row(p: Product) -> rx.Component:
             rx.el.div(
                 rx.el.button(
                     rx.icon("eye", class_name="h-4 w-4"),
-                    on_click=lambda: DataState.open_product_detail(p),
+                    on_click=lambda: DataState.open_producto_detail(p),
                     class_name="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors",
                     title="Ver",
                 ),
                 rx.el.button(
                     rx.icon("pencil", class_name="h-4 w-4"),
-                    on_click=lambda: DataState.open_edit_product(p),
+                    on_click=lambda: DataState.open_edit_producto(p),
                     class_name="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors",
                     title="Editar",
                 ),
                 rx.el.button(
                     rx.icon("trash-2", class_name="h-4 w-4"),
-                    on_click=lambda: DataState.open_delete_product(p),
+                    on_click=lambda: DataState.open_delete_producto(p),
                     class_name="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors",
                     title="Eliminar",
                 ),
@@ -201,15 +192,11 @@ def products_table() -> rx.Component:
                             class_name="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider",
                         ),
                         rx.el.th(
-                            "Tipo",
+                            "Categoría",
                             class_name="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider",
                         ),
                         rx.el.th(
                             "Proveedor",
-                            class_name="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider",
-                        ),
-                        rx.el.th(
-                            "Stock",
                             class_name="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider",
                         ),
                         rx.el.th(
@@ -221,14 +208,14 @@ def products_table() -> rx.Component:
                     ),
                 ),
                 rx.el.tbody(
-                    rx.foreach(DataState.filtered_products, product_row),
+                    rx.foreach(DataState.filtered_productos, producto_row),
                 ),
                 class_name="table-auto w-full",
             ),
             class_name="overflow-x-auto",
         ),
         rx.cond(
-            DataState.filtered_products.length() == 0,
+            DataState.filtered_productos.length() == 0,
             empty_state(),
             rx.fragment(),
         ),
@@ -256,7 +243,7 @@ def product_form_dialog() -> rx.Component:
                 rx.el.div(
                     rx.radix.primitives.dialog.title(
                         rx.cond(
-                            DataState.is_editing_product,
+                            DataState.is_editing_producto,
                             "Editar producto",
                             "Nuevo producto",
                         ),
@@ -273,22 +260,22 @@ def product_form_dialog() -> rx.Component:
                         form_field(
                             "Nombre",
                             rx.el.input(
-                                name="name",
-                                default_value=DataState.editing_product["name"],
-                                key=DataState.editing_product["id"].to_string()
-                                + "_name",
+                                name="NombreProducto",
+                                default_value=DataState.editing_producto["NombreProducto"],
+                                key=DataState.editing_producto["IdProducto"].to_string()
+                                + "_NombreProducto",
                                 placeholder="Ej. Laptop Pro",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
                                 color="black",
                             ),
                         ),
                         form_field(
-                            "SKU",
+                            "Código",
                             rx.el.input(
-                                name="sku",
-                                default_value=DataState.editing_product["sku"],
-                                key=DataState.editing_product["id"].to_string()
-                                + "_sku",
+                                name="CodigoProducto",
+                                default_value=DataState.editing_producto["CodigoProducto"],
+                                key=DataState.editing_producto["IdProducto"].to_string()
+                                + "_CodigoProducto",
                                 placeholder="Ej. LP-001",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
                                 color="black",
@@ -298,17 +285,14 @@ def product_form_dialog() -> rx.Component:
                     ),
                     rx.el.div(
                         form_field(
-                            "Tipo",
+                            "Categoría",
                             rx.el.div(
                                 rx.el.select(
-                                    rx.foreach(
-                                        DataState.type_names,
-                                        lambda n: rx.el.option(n, value=n),
-                                    ),
-                                    name="type",
-                                    default_value=DataState.editing_product[
-                                        "type"
-                                    ],
+                                    *[rx.el.option(c, value=c) for c in CATEGORIAS],
+                                    name="CategoriaProducto",
+                                    default_value=rx.cond(DataState.editing_producto["CategoriaProducto"], DataState.editing_producto["CategoriaProducto"], ""),
+                                    key=DataState.editing_producto["IdProducto"].to_string()
+                                    + "_CategoriaProducto",
                                     class_name="w-full pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
                                     color="black",
                                 ),
@@ -324,13 +308,13 @@ def product_form_dialog() -> rx.Component:
                             rx.el.div(
                                 rx.el.select(
                                     rx.foreach(
-                                        DataState.supplier_names,
-                                        lambda n: rx.el.option(n, value=n),
+                                        DataState.proveedor_filter_options,
+                                        lambda o: rx.el.option(o["label"], value=o["value"]),
                                     ),
-                                    name="supplier",
-                                    default_value=DataState.editing_product[
-                                        "supplier"
-                                    ],
+                                    name="IdProveedor",
+                                    default_value=DataState.editing_producto["IdProveedor"].to_string(),
+                                    key=DataState.editing_producto["IdProducto"].to_string()
+                                    + "_IdProveedor",
                                     class_name="w-full pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm appearance-none focus:outline-hidden focus:ring-2 focus:ring-blue-500",
                                     color="black",
                                 ),
@@ -345,62 +329,32 @@ def product_form_dialog() -> rx.Component:
                     ),
                     rx.el.div(
                         form_field(
-                            "Stock",
+                            "Precio de venta (S/.)",
                             rx.el.input(
-                                name="stock",
-                                type="number",
-                                min="0",
-                                default_value=DataState.editing_product[
-                                    "stock"
-                                ].to_string(),
-                                key=DataState.editing_product["id"].to_string()
-                                + "_stock",
-                                class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
-                                color="black",
-                            ),
-                        ),
-                        form_field(
-                            "Stock mínimo",
-                            rx.el.input(
-                                name="min_stock",
-                                type="number",
-                                min="0",
-                                default_value=DataState.editing_product[
-                                    "min_stock"
-                                ].to_string(),
-                                key=DataState.editing_product["id"].to_string()
-                                + "_ms",
-                                class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
-                                color="black",
-                            ),
-                        ),
-                        form_field(
-                            "Precio (S/.)",
-                            rx.el.input(
-                                name="price",
+                                name="PrecioVenta",
                                 type="number",
                                 min="0",
                                 step="0.01",
-                                default_value=DataState.editing_product[
-                                    "price"
+                                default_value=DataState.editing_producto[
+                                    "PrecioVenta"
                                 ].to_string(),
-                                key=DataState.editing_product["id"].to_string()
-                                + "_price",
+                                key=DataState.editing_producto["IdProducto"].to_string()
+                                + "_PrecioVenta",
                                 class_name="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500",
                                 color="black",
                             ),
                         ),
-                        class_name="grid grid-cols-3 gap-3 mb-4",
+                        class_name="mb-4",
                     ),
                     rx.cond(
-                        DataState.product_form_error != "",
+                        DataState.producto_form_error != "",
                         rx.el.div(
                             rx.icon(
                                 "triangle-alert",
                                 class_name="h-4 w-4 text-red-500 shrink-0",
                             ),
                             rx.el.p(
-                                DataState.product_form_error,
+                                DataState.producto_form_error,
                                 class_name="text-sm text-red-700",
                             ),
                             class_name="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-lg mb-4",
@@ -411,12 +365,12 @@ def product_form_dialog() -> rx.Component:
                         rx.el.button(
                             "Cancelar",
                             type="button",
-                            on_click=DataState.close_product_form,
+                            on_click=DataState.close_producto_form,
                             class_name="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors",
                         ),
                         rx.el.button(
                             rx.cond(
-                                DataState.is_editing_product,
+                                DataState.is_editing_producto,
                                 "Guardar cambios",
                                 "Crear producto",
                             ),
@@ -425,14 +379,14 @@ def product_form_dialog() -> rx.Component:
                         ),
                         class_name="flex justify-end gap-2 pt-4 border-t border-gray-100",
                     ),
-                    on_submit=DataState.submit_product,
+                    on_submit=DataState.submit_producto,
                     reset_on_submit=False,
                 ),
                 class_name="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-6 w-full max-w-lg z-50 font-['Inter']",
             ),
         ),
-        open=DataState.show_product_form,
-        on_open_change=DataState.close_product_form,
+        open=DataState.show_producto_form,
+        on_open_change=DataState.close_producto_form,
     )
 
 
@@ -456,7 +410,7 @@ def product_delete_dialog() -> rx.Component:
                     ),
                     rx.radix.primitives.dialog.description(
                         "¿Seguro que deseas eliminar '"
-                        + DataState.selected_product["name"]
+                        + DataState.selected_producto["NombreProducto"]
                         + "'? Esta acción no se puede deshacer.",
                         class_name="text-sm text-gray-500 mt-1",
                     ),
@@ -465,12 +419,12 @@ def product_delete_dialog() -> rx.Component:
                 rx.el.div(
                     rx.el.button(
                         "Cancelar",
-                        on_click=DataState.close_delete_product,
+                        on_click=DataState.close_delete_producto,
                         class_name="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50",
                     ),
                     rx.el.button(
                         "Eliminar",
-                        on_click=DataState.confirm_delete_product,
+                        on_click=DataState.confirm_delete_producto,
                         class_name="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700",
                     ),
                     class_name="flex justify-end gap-2",
@@ -478,8 +432,8 @@ def product_delete_dialog() -> rx.Component:
                 class_name="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-6 w-full max-w-md z-50 font-['Inter']",
             ),
         ),
-        open=DataState.show_product_delete,
-        on_open_change=DataState.close_delete_product,
+        open=DataState.show_producto_delete,
+        on_open_change=DataState.close_delete_producto,
     )
 
 
@@ -499,55 +453,76 @@ def product_detail_dialog() -> rx.Component:
             rx.radix.primitives.dialog.content(
                 rx.el.div(
                     rx.radix.primitives.dialog.title(
-                        DataState.selected_product["name"],
+                        DataState.selected_producto["NombreProducto"],
                         class_name="text-lg font-semibold text-gray-900",
                     ),
                     rx.radix.primitives.dialog.description(
-                        "SKU: " + DataState.selected_product["sku"],
+                        "Código: " + DataState.selected_producto["CodigoProducto"],
                         class_name="text-sm text-gray-500 mt-1",
                     ),
                     class_name="mb-4 pb-4 border-b border-gray-100",
                 ),
                 rx.el.div(
-                    detail_row("Tipo", DataState.selected_product["type"]),
+                    detail_row("Nombre", DataState.selected_producto["NombreProducto"]),
+                    detail_row("Código", DataState.selected_producto["CodigoProducto"]),
                     detail_row(
-                        "Proveedor", DataState.selected_product["supplier"]
+                        "Código de barras",
+                        rx.cond(DataState.selected_producto["CodigoBarras"], DataState.selected_producto["CodigoBarras"], "—"),
                     ),
                     detail_row(
-                        "Stock actual",
-                        DataState.selected_product["stock"].to_string(),
+                        "Categoría",
+                        rx.cond(DataState.selected_producto["CategoriaProducto"], DataState.selected_producto["CategoriaProducto"], "—"),
                     ),
                     detail_row(
-                        "Stock mínimo",
-                        DataState.selected_product["min_stock"].to_string(),
+                        "Proveedor",
+                        rx.cond(
+                            DataState.selected_producto["proveedor"],
+                            DataState.selected_producto["proveedor"]["NombreProveedor"],
+                            "—",
+                        ),
                     ),
                     detail_row(
-                        "Precio",
-                        "$" + DataState.selected_product["price"].to_string(),
+                        "Precio compra",
+                        "S/." + DataState.selected_producto["PrecioCompra"].to_string(),
                     ),
                     detail_row(
-                        "Valor total",
-                        "S/."
-                        + (
-                            DataState.selected_product["price"]
-                            * DataState.selected_product["stock"]
-                        ).to_string(),
+                        "Precio venta",
+                        "S/." + DataState.selected_producto["PrecioVenta"].to_string(),
+                    ),
+                    detail_row(
+                        "Cantidad reorden",
+                        DataState.selected_producto["CantidadReorden"].to_string(),
+                    ),
+                    rx.el.div(
+                        rx.el.p("Refrigerado", class_name="text-xs text-gray-500"),
+                        rx.cond(
+                            DataState.selected_producto["Refrigerado"],
+                            rx.el.span(
+                                "Sí",
+                                class_name="text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-full mt-0.5",
+                            ),
+                            rx.el.span(
+                                "No",
+                                class_name="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded-full mt-0.5",
+                            ),
+                        ),
+                        class_name="",
                     ),
                     class_name="grid grid-cols-2 gap-4 mb-6",
                 ),
                 rx.el.div(
                     rx.el.button(
                         "Cerrar",
-                        on_click=DataState.close_product_detail,
+                        on_click=DataState.close_producto_detail,
                         class_name="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50",
                     ),
                     rx.el.button(
                         rx.icon("pencil", class_name="h-4 w-4"),
                         "Editar",
                         on_click=[
-                            DataState.close_product_detail,
-                            lambda: DataState.open_edit_product(
-                                DataState.selected_product
+                            DataState.close_producto_detail,
+                            lambda: DataState.open_edit_producto(
+                                DataState.selected_producto
                             ),
                         ],
                         class_name="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700",
@@ -557,8 +532,8 @@ def product_detail_dialog() -> rx.Component:
                 class_name="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-6 w-full max-w-lg z-50 font-['Inter']",
             ),
         ),
-        open=DataState.show_product_detail,
-        on_open_change=DataState.close_product_detail,
+        open=DataState.show_producto_detail,
+        on_open_change=DataState.close_producto_detail,
     )
 
 
@@ -567,25 +542,20 @@ def productos_content() -> rx.Component:
         rx.el.div(
             stat_pill(
                 "Total productos",
-                DataState.total_products.to_string(),
+                DataState.total_productos.to_string(),
                 "text-gray-900",
             ),
             stat_pill(
                 "Filtrados",
-                DataState.filtered_products.length().to_string(),
+                DataState.filtered_productos.length().to_string(),
                 "text-blue-600",
-            ),
-            stat_pill(
-                "Stock crítico",
-                DataState.low_stock_count.to_string(),
-                "text-red-600",
             ),
             stat_pill(
                 "Valor inventario",
                 "S/." + DataState.total_stock_value.to_string(),
                 "text-emerald-600",
             ),
-            class_name="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6",
+            class_name="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6",
         ),
         toolbar(),
         products_table(),

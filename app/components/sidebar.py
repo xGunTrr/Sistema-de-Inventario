@@ -42,8 +42,21 @@ def sidebar() -> rx.Component:
                     ),
                     nav_link("layout-dashboard", "Dashboard", "/dashboard"),
                     nav_link("package", "Productos", "/productos"),
-                    nav_link("tag", "Tipos", "/tipos"),
                     nav_link("truck", "Proveedores", "/proveedores"),
+                    nav_link("users", "Clientes", "/clientes"),
+                    class_name="flex flex-col gap-1",
+                ),
+                rx.el.div(
+                    rx.el.p(
+                        "OPERACIONES",
+                        class_name="px-3 py-2 mt-4 text-xs font-semibold text-gray-400 tracking-wider",
+                    ),
+                    nav_link("shopping-cart", "Pedidos", "/pedidos"),
+                    nav_link("truck", "Entregas", "/entregas"),
+                    nav_link("map-pin", "Ubicaciones", "/ubicaciones"),
+                    nav_link("warehouse", "Almacenes", "/almacenes"),
+                    nav_link("database", "Inventario", "/inventario"),
+                    nav_link("arrow-left-right", "Transferencias", "/transferencias"),
                     class_name="flex flex-col gap-1",
                 ),
                 rx.el.div(

@@ -2,8 +2,14 @@ import reflex as rx
 from app.pages.login import login_page
 from app.pages.dashboard import dashboard_page
 from app.pages.productos import productos_page
-from app.pages.tipos import tipos_page
 from app.pages.proveedores import proveedores_page
+from app.pages.clientes import clientes_page
+from app.pages.pedidos import pedidos_page
+from app.pages.entregas import entregas_page
+from app.pages.ubicaciones import ubicaciones_page
+from app.pages.almacenes import almacenes_page
+from app.pages.inventario import inventario_page
+from app.pages.transferencias import transferencias_page
 from app.pages.placeholder import configuracion_page
 from app.states.auth_state import AuthState
 from app.api.endpoints import create_api_router
@@ -33,6 +39,12 @@ app = rx.App(
 app.add_page(index, route="/")
 app.add_page(dashboard_page, route="/dashboard", on_load=[AuthState.check_auth, DataState.load_data])
 app.add_page(productos_page, route="/productos", on_load=[AuthState.check_auth, DataState.load_data])
-app.add_page(tipos_page, route="/tipos", on_load=[AuthState.check_auth, DataState.load_data])
 app.add_page(proveedores_page, route="/proveedores", on_load=[AuthState.check_auth, DataState.load_data])
+app.add_page(clientes_page, route="/clientes", on_load=[AuthState.check_auth, DataState.load_data])
+app.add_page(pedidos_page, route="/pedidos", on_load=[AuthState.check_auth, DataState.load_data])
+app.add_page(entregas_page, route="/entregas", on_load=[AuthState.check_auth, DataState.load_data])
+app.add_page(ubicaciones_page, route="/ubicaciones", on_load=[AuthState.check_auth, DataState.load_data])
+app.add_page(almacenes_page, route="/almacenes", on_load=[AuthState.check_auth, DataState.load_data])
+app.add_page(inventario_page, route="/inventario", on_load=[AuthState.check_auth, DataState.load_data])
+app.add_page(transferencias_page, route="/transferencias", on_load=[AuthState.check_auth, DataState.load_data])
 app.add_page(configuracion_page, route="/configuracion", on_load=[AuthState.check_auth, DataState.load_data])
