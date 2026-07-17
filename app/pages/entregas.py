@@ -164,12 +164,6 @@ def entrega_row(e: Entrega) -> rx.Component:
                     class_name="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors",
                     title="Ver",
                 ),
-                rx.el.button(
-                    rx.icon("pencil", class_name="h-4 w-4"),
-                    on_click=lambda: DataState.open_edit_entrega(e),
-                    class_name="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors",
-                    title="Editar",
-                ),
                 rx.cond(
                     e["Estado"] == "Pendiente",
                     rx.el.button(

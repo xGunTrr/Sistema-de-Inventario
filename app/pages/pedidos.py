@@ -196,16 +196,6 @@ def pedido_row(p: Pedido) -> rx.Component:
                 rx.cond(
                     p["Estado"] == "Pendiente",
                     rx.el.button(
-                        rx.icon("pencil", class_name="h-4 w-4"),
-                        on_click=lambda: DataState.open_edit_pedido(p),
-                        class_name="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors",
-                        title="Editar",
-                    ),
-                    rx.fragment(),
-                ),
-                rx.cond(
-                    p["Estado"] == "Pendiente",
-                    rx.el.button(
                         rx.icon("send", class_name="h-4 w-4"),
                         on_click=lambda: DataState.cambiar_estado_pedido(p, "Enviado"),
                         class_name="p-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors",
