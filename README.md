@@ -51,33 +51,29 @@ psql -U postgres -d RAPIMARKET -f database_full.sql
 
 ### 5. Configurar variables de entorno
 
-Copiar el archivo `.env.example` y completar con tus credenciales:
+Copiar ambos archivos `.env.example` y renombrarlos a `.env`:
 
-**Raíz del proyecto** (`.env`):
 ```bash
+# Windows
+copy .env.example .env
+copy app\.env.example app\.env
+
+# Linux / macOS
 cp .env.example .env
-```
-
-```
-__DATABASE_URL__="postgresql://USUARIO:CONTRASENA@localhost:5432/NOMBRE_DB"
-```
-
-**Dentro de `app/`** (`app/.env`):
-```bash
 cp app/.env.example app/.env
 ```
 
+Editar ambos archivos con tus credenciales de PostgreSQL:
+
 ```
-__DATABASE_URL__="postgresql://USUARIO:CONTRASENA@localhost:5432/NOMBRE_DB"
+__DATABASE_URL__="postgresql://USUARIO:CONTRASENA@localhost:5432/RAPIMARKET"
 ```
 
-> Ambos archivos `.env` deben tener la misma URL de conexión.
-
-### Variables de entorno
+> Ambos archivos `.env` (raíz y `app/`) deben tener la misma URL de conexión.
 
 | Variable | Descripción |
 |---|---|
-| `__DATABASE_URL__` | URL de conexión a PostgreSQL con formato `postgresql://user:password@host:port/dbname` |
+| `__DATABASE_URL__` | URL de conexión a PostgreSQL |
 
 ## Ejecutar el proyecto
 
